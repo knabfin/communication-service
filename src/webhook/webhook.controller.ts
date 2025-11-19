@@ -4,15 +4,30 @@ import { db } from '../db/client';
 import { notificationEvents } from '../db/schema/notification_events';
 import { WebhookSchema, type WebhookDto } from 'src/notifications/schemas';
 import { NotificationService } from 'src/services/notification.service';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 @Controller('notifications')
 export class WebhookController {
+  constructor(private readonly notificationService: NotificationService) {}
   @Post('webhook')
   async receiveWebhook(
     @Body(new ZodValidationPipe(WebhookSchema)) body: WebhookDto,
   ) {
-    // 1️ Insert into DB first (status = PENDING)
+    const existingEvent = await db.query.notificationEvents.findFirst({
+      where: and(
+        eq(notificationEvents.eventName, body.eventName),
+        eq(notificationEvents.loanId, body.payload.loanId),
+        eq(notificationEvents.partner, body.payload.partner),
+      ),
+    });
+
+    if (existingEvent) {
+      return {
+        status: 'duplicate_ignored',
+        eventId: existingEvent.id,
+      };
+    }
+    // 1️ Insert NEW Record (status = PENDING)
     const inserted = await db
       .insert(notificationEvents)
       .values({
@@ -28,11 +43,10 @@ export class WebhookController {
 
     const eventId = inserted[0].id;
 
-    // process it
-    const service = new NotificationService();
-
     try {
-      await service.processEvent(body);
+      // Process Notification (send email)
+
+      await this.notificationService.processEvent(body);
 
       // 3 Update event status -> PROCESSED
       await db
