@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { setConfigService } from './common/utils/config.util';
 import { NotificationModule } from './notifications/notification.module';
 import { WebhookModule } from './webhook/webhook.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,11 @@ import { WebhookModule } from './webhook/webhook.module';
     WebhookModule,
   ],
 
-  controllers: [WebhookController, NotificationLogsController],
+  controllers: [
+    WebhookController,
+    NotificationLogsController,
+    HealthController,
+  ],
 })
 export class AppModule {
   constructor(private readonly configService: ConfigService) {
