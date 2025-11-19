@@ -1,6 +1,6 @@
-import { getConfig } from 'src/common/utils/config.util';
-import { fetcher } from 'src/common/utils/fetcher';
-import { Result } from 'src/common/utils/result';
+import { getConfig } from '../common/utils/config.util';
+import { fetcher } from '../common/utils/fetcher';
+import { Result } from '../common/utils/result';
 
 export interface QuickworkSingleMessage {
   template_name: string;

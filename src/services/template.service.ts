@@ -1,8 +1,8 @@
-import { renderTemplate } from 'src/common/utils/mustache.helper';
+import { renderTemplate } from '../common/utils/mustache.helper';
 import { db } from '../db/client';
 
 import { eq, and } from 'drizzle-orm';
-import { notificationTemplates } from 'src/db/schema/notification-templates';
+import { notificationTemplates } from '../db/schema/notification-templates';
 
 export class TemplateService {
   static async getActiveTemplate(

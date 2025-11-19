@@ -2,8 +2,8 @@ import { db } from '../db/client';
 
 import { TemplateService } from './template.service';
 import { ProviderSelector } from './provider.selector';
-import { notificationLogs } from 'src/db/schema/notification-logs';
-import { WebhookDto } from 'src/notifications/schemas';
+import { notificationLogs } from '../db/schema/notification-logs';
+import { WebhookDto } from '../notifications/schemas';
 
 export class NotificationService {
   async processEvent(event: WebhookDto) {

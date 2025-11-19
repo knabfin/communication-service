@@ -2,8 +2,8 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { db } from '../db/client';
 import { notificationEvents } from '../db/schema/notification_events';
-import { WebhookSchema, type WebhookDto } from 'src/notifications/schemas';
-import { NotificationService } from 'src/services/notification.service';
+import { WebhookSchema, type WebhookDto } from '../notifications/schemas';
+import { NotificationService } from '../services/notification.service';
 import { and, eq } from 'drizzle-orm';
 
 @Controller('notifications')
