@@ -1,4 +1,4 @@
-import { DmiQuickworkProvider } from './quickwork.dmi.service';
+import { DmiQuickworkProvider } from './dmi.quickwork.provider';
 
 export class ProviderSelector {
   static getProvider(partner: string) {
@@ -7,7 +7,7 @@ export class ProviderSelector {
         return new DmiQuickworkProvider();
 
       default:
-        throw new Error(`No provider configured for partner: ${partner}`);
+        throw new Error(`Provider not configured for partner ${partner}`);
     }
   }
 }
