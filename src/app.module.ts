@@ -1,30 +1,25 @@
 import { Module } from '@nestjs/common';
-import { WebhookController } from './webhook/webhook.controller';
-import { NotificationLogsController } from './notifications/notification-logs.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { setConfigService } from './common/utils/config.util';
-import { NotificationModule } from './notifications/notification.module';
-import { WebhookModule } from './webhook/webhook.module';
-import { HealthController } from './health.controller';
+
+import { LogsModule } from './modules/logs/logs.module';
+import { HealthController } from './health/health.controller';
+import { WebhookModule } from './modules/webhook/webhook.module';
+import { DispatcherModule } from './modules/dispatcher/dispatcher.module';
+import { TemplateModule } from './modules/templates/template.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-    NotificationModule,
+    ConfigModule.forRoot({ isGlobal: true }),
     WebhookModule,
+    DispatcherModule,
+    TemplateModule,
+    LogsModule,
   ],
-
-  controllers: [
-    WebhookController,
-    NotificationLogsController,
-    HealthController,
-  ],
+  controllers: [HealthController],
 })
 export class AppModule {
-  constructor(private readonly configService: ConfigService) {
+  constructor(configService: ConfigService) {
     setConfigService(configService);
   }
 }
