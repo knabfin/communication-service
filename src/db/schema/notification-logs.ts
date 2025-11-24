@@ -14,12 +14,9 @@ export const notificationLogs = pgTable('notification_logs', {
   channel: varchar('channel', { length: 50 }).notNull(),
   partner: varchar('partner', { length: 50 }).notNull(),
   recipient: varchar('recipient', { length: 255 }).notNull(),
-
   requestPayload: jsonb('request_payload').notNull(),
   responsePayload: jsonb('response_payload'),
-
   status: varchar('status', { length: 20 }).notNull(), // SUCCESS / FAILED
-
   sentAt: timestamp('sent_at').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
