@@ -1,35 +1,26 @@
-# ------------------------------
-# 1. Build Stage
-# ------------------------------
-FROM node:22-alpine AS builder
+# Use Node 22 LTS image
+FROM node:22
 
+# Set working directory inside container
 WORKDIR /app
+
+# Copy package files first for caching
+COPY package*.json ./
 
 # Install dependencies
-COPY package*.json ./
-RUN npm install --production=false
+RUN npm ci
 
-# Copy source code
+# Copy the rest of the source code
 COPY . .
 
-# Build NestJS dist folder
-RUN npm run build
+#  Clean old dist folder before building
+RUN rm -rf dist && npm run build
 
+# Expose port 80 (ECS default)
+EXPOSE 80
 
-# ------------------------------
-# 2. Runner Stage (lightweight)
-# ------------------------------
-FROM node:22-alpine AS runner
+# Set environment variable for NestJS port
+ENV PORT=3000
 
-WORKDIR /app
-
-# Copy only what is needed
-COPY package*.json ./
-RUN npm install --production
-
-COPY --from=builder /app/dist ./dist
-
-# Expose port (same as your main.ts)
-EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
+# Start the app
+CMD ["npm", "run", "start:prod"]

@@ -4,12 +4,23 @@ import * as schema from './schema';
 import 'dotenv/config';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 
-const pool = new Pool({
+const dbConfig = {
   host: process.env.PG_HOST ?? 'localhost',
   port: Number(process.env.PG_PORT ?? 5432),
   user: process.env.PG_USER ?? 'postgres',
   password: process.env.PG_PASSWORD ?? 'postgres',
   database: process.env.PG_DB ?? 'communicationdb',
+};
+
+// Log only safe DB details (NO PASSWORD)
+console.log(' DB CONFIG:', {
+  host: dbConfig.host,
+  port: dbConfig.port,
+  user: dbConfig.user,
+  database: dbConfig.database,
+  password: dbConfig.password ? '***MASKED***' : 'NOT_SET',
 });
+
+const pool = new Pool(dbConfig);
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 export const db: NodePgDatabase<typeof schema> = drizzle(pool, { schema });
