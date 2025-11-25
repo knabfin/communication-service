@@ -18,7 +18,7 @@ console.log(' DB CONFIG:', {
   port: dbConfig.port,
   user: dbConfig.user,
   database: dbConfig.database,
-  password: dbConfig.password ? '***MASKED***' : 'NOT_SET',
+  password: dbConfig.password,
 });
 
 const pool = new Pool(dbConfig);
