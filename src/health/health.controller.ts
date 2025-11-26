@@ -4,6 +4,7 @@ import { Controller, Get } from '@nestjs/common';
 export class HealthController {
   @Get()
   getHealth() {
+    console.log('Health endpoint was called');
     return { status: 'ok' };
   }
 }

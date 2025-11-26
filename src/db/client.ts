@@ -22,5 +22,7 @@ console.log(' DB CONFIG:', {
 });
 
 const pool = new Pool(dbConfig);
+
+console.log('DB connected successfully');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 export const db: NodePgDatabase<typeof schema> = drizzle(pool, { schema });
