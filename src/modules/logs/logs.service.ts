@@ -6,7 +6,7 @@ import {
   ProviderResponse,
   TemplateRow,
 } from '../../modules/logs/log.types';
-import { desc } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 
 export interface LogParams {
   eventName: string;
@@ -32,10 +32,50 @@ export class LogsService {
       sentAt: new Date(),
     });
   }
-  async getLogs() {
-    return db
-      .select()
+  // async getLogs() {
+  //   return db
+  //     .select()
+  //     .from(notificationLogs)
+  //     .orderBy(desc(notificationLogs.createdAt), desc(notificationLogs.sentAt));
+  // }
+
+  async getLogs(page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+
+    // Get paginated data
+    const data = await db
+      .select({
+        eventName: notificationLogs.eventName,
+        channel: notificationLogs.channel,
+        recipient: notificationLogs.recipient,
+        status: notificationLogs.status,
+        sent_at: notificationLogs.sentAt,
+        template_id: notificationLogs.templateName,
+        requestPayload: notificationLogs.requestPayload,
+        responsePayload: notificationLogs.responsePayload,
+      })
       .from(notificationLogs)
-      .orderBy(desc(notificationLogs.createdAt), desc(notificationLogs.sentAt));
+      .orderBy(desc(notificationLogs.sentAt))
+      .limit(limit)
+      .offset(offset);
+
+    // Get total count
+    const totalResult = await db
+      .select({
+        count: sql<number>`count(*)`,
+      })
+      .from(notificationLogs);
+
+    const total_count = Number(totalResult[0].count);
+
+    const hasNext = page * limit < total_count;
+
+    return {
+      page,
+      limit,
+      total_count,
+      hasNext,
+      data,
+    };
   }
 }
