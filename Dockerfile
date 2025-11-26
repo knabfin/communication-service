@@ -17,7 +17,7 @@ COPY . .
 RUN rm -rf dist && npm run build
 
 # Expose port 80 (ECS default)
-EXPOSE 80
+EXPOSE 3000
 
 # Set environment variable for NestJS port
 ENV PORT=3000
