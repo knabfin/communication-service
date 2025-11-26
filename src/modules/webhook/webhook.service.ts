@@ -31,6 +31,7 @@ export class WebhookService {
       .values({
         eventName: body.eventName,
         loanId: body.loanId,
+        loanApplicationNumber: body.loanApplicationNumber,
         partner: body.partner,
         payload: body.payload,
         status: 'PENDING',

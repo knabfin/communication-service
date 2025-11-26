@@ -14,18 +14,27 @@ export interface LogParams {
   template: TemplateRow;
   providerPayload: unknown;
   response: ProviderResponse;
+  loanApplicationNumber: string | null;
 }
 
 @Injectable()
 export class LogsService {
   async log(params: LogParams) {
-    const { eventName, payload, template, providerPayload, response } = params;
+    const {
+      eventName,
+      payload,
+      template,
+      providerPayload,
+      response,
+      loanApplicationNumber,
+    } = params;
     await db.insert(notificationLogs).values({
       eventName,
       templateName: template.templateName,
       channel: template.channel,
       partner: template.partner,
       recipient: typeof payload.email === 'string' ? payload.email : 'UNKNOWN',
+      loanApplicationNumber: loanApplicationNumber,
       requestPayload: providerPayload,
       responsePayload: response,
       status: response.success ? 'SUCCESS' : 'FAILED',
@@ -53,6 +62,7 @@ export class LogsService {
         template_id: notificationLogs.templateName,
         requestPayload: notificationLogs.requestPayload,
         responsePayload: notificationLogs.responsePayload,
+        loanApplicationNumber: notificationLogs.loanApplicationNumber,
       })
       .from(notificationLogs)
       .orderBy(desc(notificationLogs.sentAt))

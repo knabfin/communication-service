@@ -8,6 +8,7 @@ export const WebhookSchema = z.object({
   partner: z.string(),
   channel: z.string(),
   loanId: z.number(),
+  loanApplicationNumber: z.string(),
   payload: z.record(z.string(), z.unknown()),
 });
 

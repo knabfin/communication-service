@@ -8,7 +8,7 @@ import {
 
 export const notificationLogs = pgTable('notification_logs', {
   id: serial('id').primaryKey(),
-
+  loanApplicationNumber: varchar('loan_application_number', { length: 100 }),
   eventName: varchar('event_name', { length: 100 }).notNull(),
   templateName: varchar('template_name', { length: 255 }).notNull(),
   channel: varchar('channel', { length: 50 }).notNull(),

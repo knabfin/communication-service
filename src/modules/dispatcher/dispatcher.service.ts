@@ -70,6 +70,7 @@ export class DispatcherService {
       template,
       providerPayload,
       response,
+      loanApplicationNumber: event.loanApplicationNumber ?? null,
     });
     console.log('Log saved successfully');
     console.log('Dispatcher finished');
