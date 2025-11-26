@@ -10,6 +10,7 @@ const dbConfig = {
   user: process.env.PG_USER ?? 'postgres',
   password: process.env.PG_PASSWORD ?? 'postgres',
   database: process.env.PG_DB ?? 'communicationdb',
+  ssl: { rejectUnauthorized: false },
 };
 
 // Log only safe DB details (NO PASSWORD)
@@ -19,6 +20,7 @@ console.log(' DB CONFIG:', {
   user: dbConfig.user,
   database: dbConfig.database,
   password: dbConfig.password,
+  ssl: { rejectUnauthorized: false },
 });
 
 const pool = new Pool(dbConfig);
