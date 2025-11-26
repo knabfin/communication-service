@@ -44,7 +44,6 @@ export const LtvBreachPayloadSchema = z.object({
   date: z.string(),
   partner: z.string(),
   channel: z.string(),
-  templateName: z.string(),
 });
 
 export const WebhookSchema = z.object({
