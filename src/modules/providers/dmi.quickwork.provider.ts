@@ -83,7 +83,7 @@ export class DmiQuickworkProvider implements Provider {
     return finalPayload;
   }
 
-  send(mappedPayload: DmiMappedPayload) {
+  async send(mappedPayload: DmiMappedPayload) {
     console.log('Sending payload to Quickwork...');
     console.log('Outgoing payload:', mappedPayload);
     // return fetcher({
@@ -96,7 +96,7 @@ export class DmiQuickworkProvider implements Provider {
     //   payload: mappedPayload,
     // });
     try {
-      const response = fetcher({
+      const response = await fetcher({
         url: 'https://apim.quickwork.co/uat2/50fin/0/comms',
         method: 'POST',
         headers: {
