@@ -40,10 +40,27 @@ export class DmiQuickworkProvider implements Provider {
       throw new Error('templateName is missing from template in provider');
     }
 
+    // Current date in DD-MMM-YYYY (e.g. 30-Oct-2025)
+    const currentDateAndTime = function getCurrentDateTimeIST() {
+      const now = new Date();
+
+      const pad = (n: unknown) => String(n).padStart(2, '0');
+
+      const day = pad(now.getDate());
+      const month = pad(now.getMonth() + 1); // getMonth() is 0-indexed
+      const year = now.getFullYear();
+
+      const hours = pad(now.getHours());
+      const minutes = pad(now.getMinutes());
+      const seconds = pad(now.getSeconds());
+
+      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    };
+
     const finalPayload: DmiMappedPayload = {
       arr: [
         {
-          template_name: template.templateName,
+          template_name: `${template.templateName}_${currentDateAndTime()}`,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           recipient: data.email,
           leadsource: data.leadSource,
