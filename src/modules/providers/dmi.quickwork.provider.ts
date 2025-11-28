@@ -41,9 +41,7 @@ export class DmiQuickworkProvider implements Provider {
     }
 
     function toDmiFormattedDate(dateString: string): string {
-      const date = new Date(dateString);
-
-      const day = String(date.getDate()).padStart(2, '0');
+      const [day, month, year] = dateString.split('-');
 
       const monthNames = [
         'jan',
@@ -60,10 +58,9 @@ export class DmiQuickworkProvider implements Provider {
         'dec',
       ];
 
-      const month = monthNames[date.getMonth()];
-      const year = date.getFullYear();
+      const monthIndex = Number(month) - 1;
 
-      return `${day}-${month}-${year}`;
+      return `${day}-${monthNames[monthIndex]}-${year}`;
     }
 
     const finalPayload: DmiMappedPayload = {
