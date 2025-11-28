@@ -40,6 +40,32 @@ export class DmiQuickworkProvider implements Provider {
       throw new Error('templateName is missing from template in provider');
     }
 
+    function toDmiFormattedDate(dateString: string): string {
+      const date = new Date(dateString);
+
+      const day = String(date.getDate()).padStart(2, '0');
+
+      const monthNames = [
+        'jan',
+        'feb',
+        'mar',
+        'apr',
+        'may',
+        'jun',
+        'jul',
+        'aug',
+        'sep',
+        'oct',
+        'nov',
+        'dec',
+      ];
+
+      const month = monthNames[date.getMonth()];
+      const year = date.getFullYear();
+
+      return `${day}-${month}-${year}`;
+    }
+
     const finalPayload: DmiMappedPayload = {
       arr: [
         {
@@ -50,7 +76,7 @@ export class DmiQuickworkProvider implements Provider {
           is_realtime: 'Y' as const,
           content_variables: {
             var1: data.opportunityName,
-            var2: data.date,
+            var2: toDmiFormattedDate(data.date),
             var3: String(data.breachAmount),
             var4: data.paymentLink,
           },
@@ -69,15 +95,6 @@ export class DmiQuickworkProvider implements Provider {
   async send(mappedPayload: DmiMappedPayload) {
     console.log('Sending payload to Quickwork...');
     console.log('Outgoing payload:', mappedPayload);
-    // return fetcher({
-    //   url: 'https://apim.quickwork.co/uat2/50fin/0/comms',
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     APIKey: getConfig('QUICKWORK_API_KEY')!,
-    //   },
-    //   payload: mappedPayload,
-    // });
     try {
       const response = await fetcher({
         url: 'https://apim.quickwork.co/uat2/50fin/0/comms',
