@@ -13,7 +13,7 @@ export const DmiMappedPayloadSchema = z.object({
   arr: z.array(
     z.object({
       template_name: z.string(),
-      recipient: z.string(),
+      'recipient ': z.string(),
       leadsource: z.string(),
       is_realtime: z.enum(['Y', 'N']),
       content_variables: z.object({

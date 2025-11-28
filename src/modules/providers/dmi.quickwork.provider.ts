@@ -67,8 +67,8 @@ export class DmiQuickworkProvider implements Provider {
       arr: [
         {
           template_name: template.templateName,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          recipient: data.email,
+          'recipient ':
+            typeof data.email === 'string' ? data.email : data.email.email,
           leadsource: data.leadSource,
           is_realtime: 'Y' as const,
           content_variables: {
