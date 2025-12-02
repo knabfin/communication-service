@@ -11,20 +11,6 @@ export class WebhookService {
 
   async handleWebhook(body: WebhookDto) {
     console.log('Webhook received:', body);
-
-    // console.log('Checking for existing event...');
-    // const existing = await db.query.notificationEvents.findFirst({
-    //   where: and(
-    //     eq(notificationEvents.eventName, body.eventName),
-    //     eq(notificationEvents.loanId, body.loanId),
-    //     eq(notificationEvents.partner, body.partner),
-    //   ),
-    // });
-
-    // if (existing) {
-    //   console.log('Duplicate event found. Skipping processing:', existing);
-    //   return { status: 'duplicate_ignored' };
-    // }
     console.log('Inserting new notification event into DB...');
     const [inserted] = await db
       .insert(notificationEvents)

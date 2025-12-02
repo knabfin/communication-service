@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../../db/client';
 import { notificationLogs } from '../../db/schema/notification-logs';
+import { notificationEvents } from '../../db/schema/notification_events';
 import {
   LogEventPayload,
   ProviderResponse,
   TemplateRow,
 } from '../../modules/logs/log.types';
-import { desc, sql } from 'drizzle-orm';
+import { desc, sql, and, eq } from 'drizzle-orm';
 
 export interface LogParams {
   eventName: string;
@@ -41,17 +42,10 @@ export class LogsService {
       sentAt: new Date(),
     });
   }
-  // async getLogs() {
-  //   return db
-  //     .select()
-  //     .from(notificationLogs)
-  //     .orderBy(desc(notificationLogs.createdAt), desc(notificationLogs.sentAt));
-  // }
 
   async getLogs(page = 1, limit = 10) {
     const offset = (page - 1) * limit;
 
-    // Get paginated data
     const data = await db
       .select({
         eventName: notificationLogs.eventName,
@@ -63,13 +57,25 @@ export class LogsService {
         requestPayload: notificationLogs.requestPayload,
         responsePayload: notificationLogs.responsePayload,
         loanApplicationNumber: notificationLogs.loanApplicationNumber,
+        breachDays: sql`
+        (notification_events.payload_json->>'breachDays')::numeric
+      `.as('breachDays'),
       })
       .from(notificationLogs)
+      .leftJoin(
+        notificationEvents,
+        and(
+          eq(notificationEvents.eventName, notificationLogs.eventName),
+          eq(
+            notificationEvents.loanApplicationNumber,
+            notificationLogs.loanApplicationNumber,
+          ),
+        ),
+      )
       .orderBy(desc(notificationLogs.sentAt))
       .limit(limit)
       .offset(offset);
 
-    // Get total count
     const totalResult = await db
       .select({
         count: sql<number>`count(*)`,
@@ -77,7 +83,6 @@ export class LogsService {
       .from(notificationLogs);
 
     const total_count = Number(totalResult[0].count);
-
     const hasNext = page * limit < total_count;
 
     return {
