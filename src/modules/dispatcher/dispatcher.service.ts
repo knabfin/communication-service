@@ -15,14 +15,29 @@ export class DispatcherService {
     console.log('Dispatcher started');
     console.log('Incoming event:', event);
 
+    // Compute effectiveEventName (ONLY for LTV_BREACH + breachDays)
+
+    let effectiveEventName = event.eventName;
+
+    if (
+      event.eventName === 'LTV_BREACH' &&
+      typeof event.payload?.breachDays === 'number'
+    ) {
+      if (event.payload.breachDays <= 7) {
+        effectiveEventName = 'LTV_BREACH';
+      } else {
+        effectiveEventName = 'BREACH_INVOCATION';
+      }
+    }
+
     // Get template
     console.log(
-      ` Resolving template for: eventName=${event.eventName}, channel=${event.channel}, partner=${event.partner}`,
+      ` Resolving template for: eventName=${effectiveEventName}, channel=${event.channel}, partner=${event.partner}`,
     );
 
     // 1️ Get template (based on eventName, channel, partner)
     const template = await this.templateService.resolve(
-      event.eventName,
+      effectiveEventName,
       event.channel,
       event.partner,
     );

@@ -75,6 +75,7 @@ export class LogsService {
       .orderBy(desc(notificationLogs.sentAt))
       .limit(limit)
       .offset(offset);
+    console.log('JOIN TEST:', data);
 
     const totalResult = await db
       .select({
