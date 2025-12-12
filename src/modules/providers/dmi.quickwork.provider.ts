@@ -26,18 +26,28 @@ export class DmiQuickworkProvider implements Provider {
       ...event.payload,
     };
     console.log('Merged payload before validation:', merged);
-    console.log('breachDays value:', event.payload.breachDays, 'type:', typeof event.payload.breachDays);
+    console.log(
+      'breachDays value:',
+      event.payload.breachDays,
+      'type:',
+      typeof event.payload.breachDays,
+    );
 
     let content_variables = {
       var1: '',
       var2: '',
       var3: '',
-      var4: ''
+      var4: '',
     };
     const breachDays = Number(event.payload.breachDays);
-    console.log('breachDays after Number():', breachDays, 'type:', typeof breachDays);
-    
-    if(breachDays >= 1 && breachDays <= 7) {
+    console.log(
+      'breachDays after Number():',
+      breachDays,
+      'type:',
+      typeof breachDays,
+    );
+
+    if (breachDays >= 1 && breachDays <= 7) {
       console.log('Using breachDays 1-7 template');
       content_variables = {
         var1: event.payload.opportunityName as string,
@@ -45,18 +55,22 @@ export class DmiQuickworkProvider implements Provider {
         var3: String(event.payload.breachAmount),
         var4: event.payload.paymentLink as string,
       };
-    }else if (Number(event.payload.breachDays) >= 8){
+    } else if (Number(event.payload.breachDays) >= 8) {
       console.log('Using breachDays >= 8 template');
-      console.log('breachDays value:', event.payload.breachDays, 'type:', typeof event.payload.breachDays);
-        content_variables = {
+      console.log(
+        'breachDays value:',
+        event.payload.breachDays,
+        'type:',
+        typeof event.payload.breachDays,
+      );
+      content_variables = {
         var1: event.payload.date as string,
         var2: event.payload.email as string,
         var3: event.payload.date as string,
         var4: event.payload.paymentLink as string,
       };
     }
-   
-    console.log(content_variables, "contentVariables")
+    console.log(content_variables, 'contentVariables');
     // const data = LtvBreachPayloadSchema.parse(merged);
     let data;
     try {
@@ -102,7 +116,7 @@ export class DmiQuickworkProvider implements Provider {
             typeof data.email === 'string' ? data.email : data.email.email,
           leadsource: data.leadSource,
           is_realtime: 'Y' as const,
-          content_variables : content_variables,
+          content_variables: content_variables,
           subject_variables: {},
           buttons: {},
           uid: { id: '', type_of_id: '' },
@@ -110,7 +124,10 @@ export class DmiQuickworkProvider implements Provider {
       ],
     };
     console.log('Final provider payload:', finalPayload);
-    console.log('Final provider payload:', finalPayload.arr[0].content_variables);
+    console.log(
+      'Final provider payload:',
+      finalPayload.arr[0].content_variables,
+    );
     console.log('DmiQuickworkProvider.mapPayload() finished');
 
     return finalPayload;
