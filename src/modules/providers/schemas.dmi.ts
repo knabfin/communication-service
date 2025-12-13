@@ -16,12 +16,7 @@ export const DmiMappedPayloadSchema = z.object({
       'recipient ': z.string(),
       leadsource: z.string(),
       is_realtime: z.enum(['Y', 'N']),
-      content_variables: z.object({
-        var1: z.string(),
-        var2: z.string(),
-        var3: z.string(),
-        var4: z.string(),
-      }),
+      content_variables: z.record(z.string(), z.string()),
       subject_variables: z.record(z.string(), z.unknown()).optional(),
       buttons: z.record(z.string(), z.unknown()).optional(),
       uid: z.object({
@@ -37,13 +32,14 @@ export type DmiMappedPayload = z.infer<typeof DmiMappedPayloadSchema>;
 export const LtvBreachPayloadSchema = z.object({
   loanId: z.number(),
   email: z.string(),
-  opportunityName: z.string(),
-  leadSource: z.string(),
-  breachAmount: z.number(),
-  paymentLink: z.string(),
-  date: z.string(),
-  partner: z.string(),
-  channel: z.string(),
+  opportunityName: z.string().optional(),
+  leadSource: z.string().optional(),
+  breachAmount: z.number().optional(),
+  paymentLink: z.string().optional(),
+  date: z.string().optional(),
+  partner: z.string().optional(),
+  channel: z.string().optional(),
+  name: z.string().optional(),
 });
 
 export const WebhookSchema = z.object({

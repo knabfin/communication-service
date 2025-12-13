@@ -14,76 +14,19 @@ export class DmiQuickworkProvider implements Provider {
   mapPayload(template: DmiTemplate, event: WebhookDto): DmiMappedPayload {
     console.log('DmiQuickworkProvider.mapPayload() started');
 
-    console.log('Incoming template:', template);
+    if (!template?.templateName) {
+      throw new Error('templateName is missing from template in provider');
+    }
+
     console.log('templateName from template:', template?.templateName);
 
     console.log('Incoming event:', event);
-    console.log('Incoming payload:', event.payload);
     const merged = {
       loanId: event.loanId,
       partner: event.partner,
       channel: event.channel,
       ...event.payload,
     };
-    console.log('Merged payload before validation:', merged);
-    console.log(
-      'breachDays value:',
-      event.payload.breachDays,
-      'type:',
-      typeof event.payload.breachDays,
-    );
-
-    let content_variables = {
-      var1: '',
-      var2: '',
-      var3: '',
-      var4: '',
-    };
-    const breachDays = Number(event.payload.breachDays);
-    console.log(
-      'breachDays after Number():',
-      breachDays,
-      'type:',
-      typeof breachDays,
-    );
-
-    if (breachDays >= 1 && breachDays <= 7) {
-      console.log('Using breachDays 1-7 template');
-      content_variables = {
-        var1: event.payload.opportunityName as string,
-        var2: toDmiFormattedDate(event.payload.date as string),
-        var3: String(event.payload.breachAmount),
-        var4: event.payload.paymentLink as string,
-      };
-    } else if (Number(event.payload.breachDays) >= 8) {
-      console.log('Using breachDays >= 8 template');
-      console.log(
-        'breachDays value:',
-        event.payload.breachDays,
-        'type:',
-        typeof event.payload.breachDays,
-      );
-      content_variables = {
-        var1: event.payload.date as string,
-        var2: event.payload.email as string,
-        var3: event.payload.date as string,
-        var4: event.payload.paymentLink as string,
-      };
-    }
-    console.log(content_variables, 'contentVariables');
-    // const data = LtvBreachPayloadSchema.parse(merged);
-    let data;
-    try {
-      data = LtvBreachPayloadSchema.parse(merged);
-      console.log('Zod validation success:', data);
-    } catch (err) {
-      console.error('Zod validation failed:', err);
-      throw err;
-    }
-    if (!template?.templateName) {
-      console.error('template.templateName is UNDEFINED:', template);
-      throw new Error('templateName is missing from template in provider');
-    }
 
     function toDmiFormattedDate(dateString: string): string {
       const [day, month, year] = dateString.split('-');
@@ -103,9 +46,34 @@ export class DmiQuickworkProvider implements Provider {
         'dec',
       ];
 
-      const monthIndex = Number(month) - 1;
+      return `${day}-${monthNames[Number(month) - 1]}-${year}`;
+    }
 
-      return `${day}-${monthNames[monthIndex]}-${year}`;
+    /**
+     * Build content_variables dynamically from DB template
+     */
+    const content_variables: Record<string, string> = {};
+
+    template.variables.forEach((variableName, index) => {
+      const varKey = `var${index + 1}`;
+      let value = event.payload[variableName];
+
+      if (variableName === 'date') {
+        value = toDmiFormattedDate(String(value));
+      }
+
+      content_variables[varKey] = String(value);
+    });
+
+    console.log('Resolved content_variables:', content_variables);
+
+    let data;
+    try {
+      data = LtvBreachPayloadSchema.parse(merged);
+      console.log('Zod validation success:', data);
+    } catch (err) {
+      console.error('Zod validation failed:', err);
+      throw err;
     }
 
     const finalPayload: DmiMappedPayload = {
@@ -115,8 +83,8 @@ export class DmiQuickworkProvider implements Provider {
           'recipient ':
             typeof data.email === 'string' ? data.email : data.email.email,
           leadsource: data.leadSource,
-          is_realtime: 'Y' as const,
-          content_variables: content_variables,
+          is_realtime: 'Y',
+          content_variables,
           subject_variables: {},
           buttons: {},
           uid: { id: '', type_of_id: '' },
@@ -134,26 +102,20 @@ export class DmiQuickworkProvider implements Provider {
   }
 
   async send(mappedPayload: DmiMappedPayload) {
-    console.log('Sending payload to Quickwork...');
-    console.log('Outgoing payload:', mappedPayload);
-    try {
-      const response = await fetcher({
-        url: 'https://apim.quickwork.co/uat2/50fin/0/comms',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          APIKey: getConfig('QUICKWORK_API_KEY')!,
-        },
-        payload: mappedPayload,
-      });
+    console.log('Sending payload to Quickwork...', mappedPayload);
 
-      console.log('Quickwork raw response:', response);
+    const response = await fetcher({
+      url: 'https://apim.quickwork.co/uat2/50fin/0/comms',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        APIKey: getConfig('QUICKWORK_API_KEY')!,
+      },
+      payload: mappedPayload,
+    });
 
-      return response;
-    } catch (error) {
-      console.error('Error:', error);
+    console.log('Quickwork raw response:', response);
 
-      throw error;
-    }
+    return response;
   }
 }
