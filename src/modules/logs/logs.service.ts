@@ -43,8 +43,16 @@ export class LogsService {
     });
   }
 
-  async getLogs(page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
+  async getLogs(page: number = 1, limit: number = 10) {
+    const currentPage = page > 0 ? page : 1;
+    const pageLimit = limit > 0 ? limit : 10;
+    const offset = (currentPage - 1) * pageLimit;
+
+    const totalResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(notificationLogs);
+
+    const total_count = Number(totalResult[0]?.count || 0);
 
     const data = await db
       .select({
@@ -73,22 +81,14 @@ export class LogsService {
         ),
       )
       .orderBy(desc(notificationLogs.sentAt))
-      .limit(limit)
+      .limit(pageLimit)
       .offset(offset);
-    console.log('JOIN TEST:', data);
 
-    const totalResult = await db
-      .select({
-        count: sql<number>`count(*)`,
-      })
-      .from(notificationLogs);
-
-    const total_count = Number(totalResult[0].count);
-    const hasNext = page * limit < total_count;
+    const hasNext = offset + data.length < total_count;
 
     return {
-      page,
-      limit,
+      page: currentPage,
+      limit: pageLimit,
       total_count,
       hasNext,
       data,
