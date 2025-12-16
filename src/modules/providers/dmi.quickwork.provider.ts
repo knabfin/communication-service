@@ -28,27 +28,6 @@ export class DmiQuickworkProvider implements Provider {
       ...event.payload,
     };
 
-    function toDmiFormattedDate(dateString: string): string {
-      const [day, month, year] = dateString.split('-');
-
-      const monthNames = [
-        'jan',
-        'feb',
-        'mar',
-        'apr',
-        'may',
-        'jun',
-        'jul',
-        'aug',
-        'sep',
-        'oct',
-        'nov',
-        'dec',
-      ];
-
-      return `${day}-${monthNames[Number(month) - 1]}-${year}`;
-    }
-
     /**
      * Build content_variables dynamically from DB template
      */
@@ -56,12 +35,7 @@ export class DmiQuickworkProvider implements Provider {
 
     template.variables.forEach((variableName, index) => {
       const varKey = `var${index + 1}`;
-      let value = event.payload[variableName];
-
-      if (variableName === 'date') {
-        value = toDmiFormattedDate(String(value));
-      }
-
+      const value = event.payload[variableName];
       content_variables[varKey] = String(value);
     });
 
@@ -92,12 +66,6 @@ export class DmiQuickworkProvider implements Provider {
       ],
     };
     console.log('Final provider payload:', finalPayload);
-    console.log(
-      'Final provider payload:',
-      finalPayload.arr[0].content_variables,
-    );
-    console.log('DmiQuickworkProvider.mapPayload() finished');
-
     return finalPayload;
   }
 
