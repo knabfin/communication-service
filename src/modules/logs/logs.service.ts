@@ -7,7 +7,7 @@ import {
   ProviderResponse,
   TemplateRow,
 } from '../../modules/logs/log.types';
-import { desc, sql, and, eq } from 'drizzle-orm';
+import { desc, sql, and, eq, count } from 'drizzle-orm';
 
 export interface LogParams {
   eventName: string;
@@ -49,7 +49,7 @@ export class LogsService {
     const offset = (currentPage - 1) * pageLimit;
 
     const totalResult = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: count() })
       .from(notificationLogs);
 
     const total_count = Number(totalResult[0]?.count || 0);
