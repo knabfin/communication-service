@@ -54,7 +54,8 @@ export class LogsService {
 
     const total_count = Number(totalResult[0]?.count || 0);
 
-    const data = await db
+    // get all the logs first
+    const logs = await db
       .select({
         eventName: notificationLogs.eventName,
         channel: notificationLogs.channel,
@@ -65,24 +66,44 @@ export class LogsService {
         requestPayload: notificationLogs.requestPayload,
         responsePayload: notificationLogs.responsePayload,
         loanApplicationNumber: notificationLogs.loanApplicationNumber,
-        breachDays: sql`
-        (notification_events.payload_json->>'breachDays')::numeric
-      `.as('breachDays'),
       })
       .from(notificationLogs)
-      .leftJoin(
-        notificationEvents,
-        and(
-          eq(notificationEvents.eventName, notificationLogs.eventName),
-          eq(
-            notificationEvents.loanApplicationNumber,
-            notificationLogs.loanApplicationNumber,
-          ),
-        ),
-      )
       .orderBy(desc(notificationLogs.sentAt))
       .limit(pageLimit)
       .offset(offset);
+
+    // for each log, get its event payload with Processed check
+    const data = await Promise.allSettled(
+      logs.map(async (log) => {
+        let eventPayload: Record<string, unknown> | null = null;
+        if (log.loanApplicationNumber) {
+          const events = await db
+            .select({ payload: notificationEvents.payload })
+            .from(notificationEvents)
+            .where(
+              and(
+                eq(notificationEvents.eventName, log.eventName),
+                eq(
+                  notificationEvents.loanApplicationNumber,
+                  log.loanApplicationNumber,
+                ),
+                eq(notificationEvents.status, 'PROCESSED'),
+              ),
+            )
+            .orderBy(desc(notificationEvents.createdAt))
+            .limit(1);
+
+          if (events.length > 0 && events[0].payload) {
+            eventPayload = events[0].payload as Record<string, unknown>;
+          }
+        }
+
+        return {
+          ...log,
+          eventPayload,
+        };
+      }),
+    );
 
     const hasNext = offset + data.length < total_count;
 
